@@ -167,11 +167,11 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations=2000, learning_rate=0
 
 # Now load dataset
 # train data
-IMAGE_DIRECTORY = './Cat Classifier/data/training_set'
+IMAGE_DIRECTORY = './data/training_set'
 training_images, training_labels = load_and_flatten_data_set(IMAGE_DIRECTORY)
 
 # test data
-IMAGE_DIRECTORY = './Cat Classifier/data/test_set'
+IMAGE_DIRECTORY = './data/test_set'
 test_images, test_labels = load_and_flatten_data_set(IMAGE_DIRECTORY)
 
 d = model(training_images, training_labels, test_images, test_labels, num_iterations=2000, learning_rate=0.009,
