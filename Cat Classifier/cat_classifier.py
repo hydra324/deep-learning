@@ -8,7 +8,7 @@ Created on Mon Dec 27 12:20:44 2021
 
 from PIL import Image
 from random import shuffle, choice
-import numpy as np
+import cupy as np
 import os
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
