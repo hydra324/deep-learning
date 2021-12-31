@@ -55,7 +55,7 @@ test_images, test_labels = load_and_flatten_data_set(IMAGE_DIRECTORY)
 # d = model(training_images, training_labels, test_images, test_labels, num_iterations=2000, learning_rate=0.009,
 #           print_cost=True)
 
-### CONSTANTS DEFINING THE MODEL ####
+# layer dimensions defining the model
 layers_dims = (IMAGE_SIZE * IMAGE_SIZE, 7, 1)
 # train two layer neural net model
 params = two_layer_model(X=training_images, Y=training_labels, layer_dims=layers_dims, learning_rate=0.005,
