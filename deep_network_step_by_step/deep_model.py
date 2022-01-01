@@ -1,5 +1,5 @@
 import cupy as np
-from utils import sigmoid, relu, sigmoid_prime, relu_prime
+from utils import sigmoid, relu, sigmoid_backward, relu_backward
 
 np.random.seed(1)
 
@@ -37,7 +37,7 @@ def initialize_parameters_deep(layer_dims):
     np.random.seed(3)
     parameters = {}
     for l in range(1, len(layer_dims)):
-        parameters["W" + str(l)] = np.random.randn(layer_dims[l], layer_dims[l - 1])
+        parameters["W" + str(l)] = np.random.randn(layer_dims[l], layer_dims[l - 1]) * 0.1
         parameters["b" + str(l)] = np.zeros((layer_dims[l], 1))
     return parameters
 
@@ -68,7 +68,7 @@ def linear_activation_forward(A_prev, W, b, activation):
         A = sigmoid(Z)
     elif activation == RELU:
         A = relu(Z)
-    activation_cache = (A, Z)
+    activation_cache = Z
     cache = (linear_cache, activation_cache)
     return A, cache
 
@@ -104,8 +104,8 @@ def compute_cost(AL, Y):
 # Backward propagation module
 # for a layer L, when we  have dZL, cache; now we have to compute dA_prev,dW,db
 def linear_backward(dZ, linear_cache):
-    m = dZ.shape[1]
     A_prev, W, b = linear_cache
+    m = A_prev.shape[1]
     dW = (1 / m) * np.dot(dZ, A_prev.T)
     db = (1 / m) * np.sum(dZ, axis=1, keepdims=True)
     dA_prev = np.dot(W.T, dZ)
@@ -115,12 +115,11 @@ def linear_backward(dZ, linear_cache):
 # in backward step, now we compute dA_prev, dW, db with the help of linear_backward and cache
 def linear_activation_backward(dA, cache, activation):
     linear_cache, activation_cache = cache
-    g_prime = 0
+    dZ = 0
     if activation == SIGMOID:
-        g_prime = sigmoid_prime(activation_cache)
+        dZ = sigmoid_backward(dA, activation_cache)
     elif activation == RELU:
-        g_prime = relu_prime(activation_cache)
-    dZ = np.multiply(dA, g_prime)
+        dZ = relu_backward(dA, activation_cache)
     return linear_backward(dZ, linear_cache)
 
 
@@ -133,11 +132,10 @@ def L_model_backward(AL, Y, caches):
     L = len(caches)
 
     # first calculate the gradient of last/output layer
-    grads["dAL"] = -(np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
-    grads["dA" + str(L - 1)], grads["dW" + str(L)], grads["db" + str(L)] = \
-        linear_activation_backward(grads["dA" + str(L)], caches[L - 1], SIGMOID)
+    grads["dA"+str(L)] = -(np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+    grads["dA" + str(L - 1)], grads["dW" + str(L)], grads["db" + str(L)] = linear_activation_backward(grads["dA" + str(L)], caches[L - 1], SIGMOID)
 
-    for l in reversed(range(1, L - 1)):
+    for l in reversed(range(1, L)):
         grads["dA" + str(l - 1)], grads["dW" + str(l)], grads["db" + str(l)] = linear_activation_backward(
             grads["dA" + str(l)], caches[l - 1], RELU)
 
@@ -151,8 +149,8 @@ def L_model_backward(AL, Y, caches):
 def update_parameters(parameters, grads, learning_rate):
     # number of layers
     L = len(parameters) // 2
-    for l in range(1, L+1):
-        parameters["W"+str(l)] = parameters["W"+str(l)] - learning_rate * grads["dW"+str(l)]
-        parameters["b"+str(l)] = parameters["b"+str(l)] - learning_rate * grads["db"+str(l)]
+    for l in range(1, L + 1):
+        parameters["W" + str(l)] = parameters["W" + str(l)] - (learning_rate * grads["dW" + str(l)])
+        parameters["b" + str(l)] = parameters["b" + str(l)] - (learning_rate * grads["db" + str(l)])
 
     return parameters
