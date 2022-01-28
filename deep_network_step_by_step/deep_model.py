@@ -37,7 +37,7 @@ def initialize_parameters_deep(layer_dims):
     np.random.seed(3)
     parameters = {}
     for l in range(1, len(layer_dims)):
-        parameters["W" + str(l)] = np.random.randn(layer_dims[l], layer_dims[l - 1]) * 0.1
+        parameters["W" + str(l)] = np.random.randn(layer_dims[l], layer_dims[l - 1]) * np.sqrt(2/(layer_dims[l] + layer_dims[l-1]))
         parameters["b" + str(l)] = np.zeros((layer_dims[l], 1))
     return parameters
 
@@ -124,20 +124,23 @@ def linear_activation_backward(dA, cache, activation):
 
 
 # L-model backward propagation
-def L_model_backward(AL, Y, caches):
+def L_model_backward(AL, Y, caches, parameters, lamda):
     # initialize empty dictionary for storing gradients
     grads = {}
 
     # number of layers
     L = len(caches)
+    m = Y.shape[1]
 
     # first calculate the gradient of last/output layer
     grads["dA"+str(L)] = -(np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
     grads["dA" + str(L - 1)], grads["dW" + str(L)], grads["db" + str(L)] = linear_activation_backward(grads["dA" + str(L)], caches[L - 1], SIGMOID)
+    grads["dW" + str(L)] = grads["dW" + str(L)] + (lamda / m) * parameters["W"+str(L)]
 
     for l in reversed(range(1, L)):
         grads["dA" + str(l - 1)], grads["dW" + str(l)], grads["db" + str(l)] = linear_activation_backward(
             grads["dA" + str(l)], caches[l - 1], RELU)
+        grads["dW" + str(l)] = grads["dW" + str(l)] + (lamda / m) * parameters["W" + str(l)]
 
     # remove dA0 as it's not necessary
     grads.pop("dA0")
@@ -154,3 +157,18 @@ def update_parameters(parameters, grads, learning_rate):
         parameters["b" + str(l)] = parameters["b" + str(l)] - (learning_rate * grads["db" + str(l)])
 
     return parameters
+
+def compute_regularized_cost(parameters, m, lamda):
+    '''
+    computes L2 regularization cost or the Frobenius norm from the weight paramters
+    :param lamda:
+    :param parameters:
+    :param m:
+    :return:
+    '''
+    cost = 0.0
+    L = len(parameters) // 2
+    for l in range(1, L+1):
+        cost += np.sum(np.square(parameters["W"+str(l)]))
+    cost *= (lamda/(2*m))
+    return cost

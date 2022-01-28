@@ -14,22 +14,24 @@ from deep_model import *
 
 TRAIN_H5_DATA_PATH = '../Cat Classifier/data/train_catvnoncat.h5'
 TEST_H5_DATA_PATH = '../Cat Classifier/data/test_catvnoncat.h5'
-training_images, training_labels, test_images, test_labels = load_data_flattened(TRAIN_H5_DATA_PATH, TEST_H5_DATA_PATH)
+training_images, training_labels, test_images, test_labels, mean, var = load_data_flattened(TRAIN_H5_DATA_PATH, TEST_H5_DATA_PATH)
 
 
 # Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID
-def L_layer_model(X, Y, layer_dims, learning_rate=0.0075, num_iterations=3000, print_cost=False):
+def L_layer_model(X, Y, layer_dims, learning_rate=0.0075, num_iterations=3000, print_cost=False, lamda=0.0):
     np.random.seed(1)
     parameters = initialize_parameters_deep(layer_dims)
 
     costs = []
+    m = X.shape[1]
     for i in range(0, num_iterations):
         AL, caches = L_model_forward(X, parameters)
         cost = compute_cost(AL, Y)
+        cost += compute_regularized_cost(parameters, m, lamda)
         if print_cost and i % 100 == 0:
             costs.append(np.ndarray.get(cost))
             print("Cost after iteration %i: %f" % (i, cost))
-        grads = L_model_backward(AL, Y, caches)
+        grads = L_model_backward(AL, Y, caches, parameters, lamda)
         parameters = update_parameters(parameters, grads, learning_rate)
 
     plt.plot(costs)
@@ -55,8 +57,8 @@ IMAGE_SIZE = 64
 CHANNELS = 3
 layers_dims = [IMAGE_SIZE * IMAGE_SIZE * CHANNELS, 20, 7, 5, 1]
 
-params = L_layer_model(X=training_images, Y=training_labels, layer_dims=layers_dims, learning_rate=0.03,
-                       print_cost=True, num_iterations=5000)
+params = L_layer_model(X=training_images, Y=training_labels, layer_dims=layers_dims, learning_rate=0.07,
+                       print_cost=True, num_iterations=3000, lamda=0.9)
 
 # training accuracy
 Y_prediction_train = L_layer_model_predict(training_images, params)

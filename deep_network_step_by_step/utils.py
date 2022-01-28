@@ -132,8 +132,12 @@ def load_data_flattened(TRAIN_DATA_PATH, TEST_DATA_PATH):
     test_x_flatten = test_x_orig.reshape(test_x_orig.shape[0], -1).T
 
     # Standardize data to have feature values between 0 and 1.
-    train_x = train_x_flatten / 255.
-    test_x = test_x_flatten / 255.
+    # train_x = train_x_flatten / 255.
+    mean = np.mean(train_x_flatten, axis=1).reshape(train_x_flatten.shape[0], -1)
+    var = np.mean(train_x_flatten, axis=1).reshape(train_x_flatten.shape[0], -1)
+    train_x = (train_x_flatten - mean) / var
+    # test_x = test_x_flatten / 255.
+    test_x = (test_x_flatten - mean) / var
     print("train_x's shape: " + str(train_x.shape))
     print("test_x's shape: " + str(test_x.shape))
-    return train_x, train_y, test_x, test_y
+    return train_x, train_y, test_x, test_y, mean, var
