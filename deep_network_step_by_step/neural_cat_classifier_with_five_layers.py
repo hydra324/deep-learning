@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 from utils import *
 from deep_model import *
 
