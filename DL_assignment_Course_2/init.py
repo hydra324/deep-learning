@@ -2,6 +2,7 @@ import cupy as np
 import sklearn
 from sklearn import datasets
 import matplotlib.pyplot as plt
+import scipy.io
 
 plt.rcParams['figure.figsize'] = (7.0, 4.0) # set default size of plots
 plt.rcParams['image.interpolation'] = 'nearest'
@@ -39,3 +40,16 @@ def plot_decision_boundary(model, X, y):
     plt.xlabel('x1')
     plt.scatter(X[0, :].get(), X[1, :].get(), c=y.get(), cmap=plt.cm.Spectral)
     plt.show(block=True)
+
+
+def load_2D_dataset():
+    data = scipy.io.loadmat('data.mat')
+    train_X = data['X'].T
+    train_Y = data['y'].T
+    test_X = data['Xval'].T
+    test_Y = data['yval'].T
+
+    plt.scatter(train_X[0, :], train_X[1, :], c=train_Y, s=40, cmap=plt.cm.Spectral)
+    plt.show(block=True)
+
+    return train_X, train_Y, test_X, test_Y
