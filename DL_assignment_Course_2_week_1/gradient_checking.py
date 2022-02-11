@@ -1,8 +1,8 @@
 import cupy as np
 
-from DL_assignment_Course_2.gc_utils import relu, sigmoid, dictionary_to_vector, gradients_to_vector, \
+from DL_assignment_Course_2_week_1.gc_utils import relu, sigmoid, dictionary_to_vector, gradients_to_vector, \
     vector_to_dictionary
-from DL_assignment_Course_2.init import load_2D_dataset
+from DL_assignment_Course_2_week_1.init import load_2D_dataset
 from deep_network_step_by_step.deep_model import update_parameters
 from init import load_2D_dataset
 from matplotlib import pyplot as plt
